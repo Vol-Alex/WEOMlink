@@ -127,7 +127,8 @@ etl::expected<void, Error> TCSIPacket::validate() const
         return etl::unexpected<Error>(Error::TCSI__INVALID_SIZE);
     }
 
-    if (const auto calculatedChecksum = calculateCheckSum(m_packetData); m_packetData.back() != calculatedChecksum)
+    const auto calculatedChecksum = calculateCheckSum(m_packetData);
+    if (m_packetData.back() != calculatedChecksum)
     {
         return etl::unexpected<Error>(Error::TCSI__INVALID_CHECKSUM);
     }

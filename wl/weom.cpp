@@ -1,6 +1,7 @@
 #include "wl/weom.h"
 
 #include <cassert>
+#include <cmath>
 
 namespace wl {
 namespace {
@@ -60,7 +61,7 @@ etl::expected<void, Error> WEOM::setDataLinkInterface(etl::unique_ptr<IDataLinkI
     protocolInterface->setDataLinkInterface(etl::move(dataLinkInterface));
     m_deviceInterface = etl::unique_ptr<DeviceInterfaceWEOM>(new DeviceInterfaceWEOM(etl::move(protocolInterface), m_sleepFunction));
 
-    auto result = readAddressRange<MemorySpaceWEOM::DEVICE_IDENTIFICATOR>();
+    auto result = readAddressRange(MemorySpaceWEOM::DEVICE_IDENTIFICATOR);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -79,7 +80,7 @@ etl::expected<void, Error> WEOM::setDataLinkInterface(etl::unique_ptr<IDataLinkI
 
 etl::expected<Status, Error> WEOM::getStatus()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::STATUS>();
+    auto result = readAddressRange(MemorySpaceWEOM::STATUS);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -89,7 +90,7 @@ etl::expected<Status, Error> WEOM::getStatus()
 
 etl::expected<Triggers, Error> WEOM::getTriggers()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::TRIGGER>();
+    auto result = readAddressRange(MemorySpaceWEOM::TRIGGER);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -109,7 +110,7 @@ etl::expected<void, Error> WEOM::activateTrigger(Trigger trigger)
 
 etl::expected<etl::string<WEOM::SERIAL_NUMBER_STRING_SIZE>, Error> WEOM::getSerialNumber()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::SERIAL_NUMBER_CURRENT>();
+    auto result = readAddressRange(MemorySpaceWEOM::SERIAL_NUMBER_CURRENT);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -119,7 +120,7 @@ etl::expected<etl::string<WEOM::SERIAL_NUMBER_STRING_SIZE>, Error> WEOM::getSeri
 
 etl::expected<etl::string<WEOM::ARTICLE_NUMBER_STRING_SIZE>, Error> WEOM::getArticleNumber()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::ARTICLE_NUMBER_CURRENT>();
+    auto result = readAddressRange(MemorySpaceWEOM::ARTICLE_NUMBER_CURRENT);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -129,7 +130,7 @@ etl::expected<etl::string<WEOM::ARTICLE_NUMBER_STRING_SIZE>, Error> WEOM::getArt
 
 etl::expected<FirmwareVersion, Error> WEOM::getFirmwareVersion()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::MAIN_FIRMWARE_VERSION>();
+    auto result = readAddressRange(MemorySpaceWEOM::MAIN_FIRMWARE_VERSION);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -139,7 +140,7 @@ etl::expected<FirmwareVersion, Error> WEOM::getFirmwareVersion()
 
 etl::expected<uint8_t, Error> WEOM::getPaletteIndex()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::PALETTE_INDEX_CURRENT>();
+    auto result = readAddressRange(MemorySpaceWEOM::PALETTE_INDEX_CURRENT);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -166,14 +167,14 @@ etl::expected<etl::string<MemorySpaceWEOM::PALETTE_NAME_SIZE>, Error> WEOM::getP
     auto result = m_deviceInterface->readData(data, addressRange.getFirstAddress());
     if (!result.has_value())
     {
-        return etl::unexpected(result.error());
+        return etl::unexpected<Error>(result.error());
     }
     return etl::string<MemorySpaceWEOM::PALETTE_NAME_SIZE>(data.begin(), data.end());
 }
 
 etl::expected<Framerate, Error> WEOM::getFramerate()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::FRAME_RATE_CURRENT>();
+    auto result = readAddressRange(MemorySpaceWEOM::FRAME_RATE_CURRENT);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -190,7 +191,7 @@ etl::expected<void, Error> WEOM::setFramerate(Framerate framerate)
 
 etl::expected<ImageFlip, Error> WEOM::getImageFlip()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::IMAGE_FLIP_CURRENT>();
+    auto result = readAddressRange(MemorySpaceWEOM::IMAGE_FLIP_CURRENT);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -214,7 +215,7 @@ etl::expected<void, Error> WEOM::setImageFlip(const ImageFlip& flip)
 
 etl::expected<bool, Error> WEOM::getImageFreeze()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::STATUS>();
+    auto result = readAddressRange(MemorySpaceWEOM::STATUS);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -231,7 +232,7 @@ etl::expected<void, Error> WEOM::setImageFreeze(bool freeze)
 
 etl::expected<ImageGenerator, Error> WEOM::getImageGenerator()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::TEST_PATTERN>();
+    auto result = readAddressRange(MemorySpaceWEOM::TEST_PATTERN);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -248,7 +249,7 @@ etl::expected<void, Error> WEOM::setImageGenerator(ImageGenerator generator)
 
 etl::expected<ShutterUpdateMode, Error> WEOM::getShutterUpdateMode()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::NUC_UPDATE_MODE_CURRENT>();
+    auto result = readAddressRange(MemorySpaceWEOM::NUC_UPDATE_MODE_CURRENT);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -258,7 +259,7 @@ etl::expected<ShutterUpdateMode, Error> WEOM::getShutterUpdateMode()
 
 etl::expected<double, Error> WEOM::getShutterTemperature()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::SHUTTER_TEMPERATURE>();
+    auto result = readAddressRange(MemorySpaceWEOM::SHUTTER_TEMPERATURE);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -275,7 +276,7 @@ etl::expected<void, Error> WEOM::setShutterUpdateMode(ShutterUpdateMode mode, Me
 
 etl::expected<uint16_t, Error> WEOM::getShutterMaxPeriod()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::NUC_MAX_PERIOD_CURRENT>();
+    auto result = readAddressRange(MemorySpaceWEOM::NUC_MAX_PERIOD_CURRENT);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -293,7 +294,7 @@ etl::expected<void, Error> WEOM::setShutterMaxPeriod(uint16_t value, MemoryType 
 
 etl::expected<double, Error> WEOM::getShutterAdaptiveThreshold()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::NUC_ADAPTIVE_THRESHOLD_CURRENT>();
+    auto result = readAddressRange(MemorySpaceWEOM::NUC_ADAPTIVE_THRESHOLD_CURRENT);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -317,7 +318,7 @@ etl::expected<void, Error> WEOM::setShutterAdaptiveThreshold(double value, Memor
 
 etl::expected<TimeDomainAveraging, Error> WEOM::getTimeDomainAveraging()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::TIME_DOMAIN_AVERAGE_CURRENT>();
+    auto result = readAddressRange(MemorySpaceWEOM::TIME_DOMAIN_AVERAGE_CURRENT);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -334,7 +335,7 @@ etl::expected<void, Error> WEOM::setTimeDomainAveraging(TimeDomainAveraging aver
 
 etl::expected<ImageEqualizationType, Error> WEOM::getImageEqualizationType()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::IMAGE_EQUALIZATION_TYPE_CURRENT>();
+    auto result = readAddressRange(MemorySpaceWEOM::IMAGE_EQUALIZATION_TYPE_CURRENT);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -351,7 +352,7 @@ etl::expected<void, Error> WEOM::setImageEqualizationType(ImageEqualizationType 
 
 etl::expected<ContrastBrightness, Error> WEOM::getMgcContrastBrightness()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::MGC_CONTRAST_BRIGHTNESS_CURRENT>();
+    auto result = readAddressRange(MemorySpaceWEOM::MGC_CONTRAST_BRIGHTNESS_CURRENT);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -372,7 +373,7 @@ etl::expected<void, Error> WEOM::setMgcContrastBrightness(const ContrastBrightne
 
 etl::expected<uint8_t, Error> WEOM::getAgcNhSmoothingFrames()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::AGC_NH_SMOOTHING_CURRENT>();
+    auto result = readAddressRange(MemorySpaceWEOM::AGC_NH_SMOOTHING_CURRENT);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -389,7 +390,7 @@ etl::expected<void, Error> WEOM::setAgcNhSmoothingFrames(uint8_t frames, MemoryT
 
 etl::expected<bool, Error> WEOM::getSpatialMedianFilterEnabled()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::SPATIAL_MEDIAN_FILTER_ENABLE_CURRENT>();
+    auto result = readAddressRange(MemorySpaceWEOM::SPATIAL_MEDIAN_FILTER_ENABLE_CURRENT);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -406,7 +407,7 @@ etl::expected<void, Error> WEOM::setSpatialMedianFilterEnabled(bool enabled, Mem
 
 etl::expected<uint8_t, Error> WEOM::getLinearGainWeight()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::LINEAR_GAIN_WEIGHT>();
+    auto result = readAddressRange(MemorySpaceWEOM::LINEAR_GAIN_WEIGHT);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -423,7 +424,7 @@ etl::expected<void, Error> WEOM::setLinearGainWeight(uint8_t value, MemoryType m
 
 etl::expected<uint8_t, Error> WEOM::getClipLimit()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::CLIP_LIMIT>();
+    auto result = readAddressRange(MemorySpaceWEOM::CLIP_LIMIT);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -440,7 +441,7 @@ etl::expected<void, Error> WEOM::setClipLimit(uint8_t value, MemoryType memoryTy
 
 etl::expected<uint8_t, Error> WEOM::getPlateauTailRejection()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::PLATEAU_TAIL_REJECTION>();
+    auto result = readAddressRange(MemorySpaceWEOM::PLATEAU_TAIL_REJECTION);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -471,7 +472,7 @@ etl::expected<PresetId, Error> WEOM::getPresetId(uint8_t index)
         return etl::unexpected<Error>(writeResult.error());
     }
 
-    auto result = readAddressRange<MemorySpaceWEOM::ATTRIBUTE_ADDRESS>();
+    auto result = readAddressRange(MemorySpaceWEOM::ATTRIBUTE_ADDRESS);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -479,9 +480,10 @@ etl::expected<PresetId, Error> WEOM::getPresetId(uint8_t index)
 
     auto address = uint32_t(result.value().at(0)) | (uint32_t(result.value().at(1)) << 8) | (uint32_t(result.value().at(2)) << 16) | (uint32_t(result.value().at(3)) << 24);
     etl::array<uint8_t, 4> presetData = {};
-    if (auto result = m_deviceInterface->readData(presetData, address);!result.has_value())
+    auto readResult = m_deviceInterface->readData(presetData, address);
+    if (!readResult.has_value())
     {
-        return etl::unexpected(result.error());
+        return etl::unexpected<Error>(result.error());
     }
 
     auto range = Range::getFromDeviceValue(presetData.at(0) & 0b1111);
@@ -500,7 +502,7 @@ etl::expected<PresetId, Error> WEOM::getPresetId(uint8_t index)
 
 etl::expected<std::uint8_t, Error> WEOM::getPresetIdCount()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::NUMBER_OF_PRESETS_AND_ATTRIBUTES>();
+    auto result = readAddressRange(MemorySpaceWEOM::NUMBER_OF_PRESETS_AND_ATTRIBUTES);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -510,7 +512,7 @@ etl::expected<std::uint8_t, Error> WEOM::getPresetIdCount()
 
 etl::expected<PresetId, Error> WEOM::getPresetId()
 {
-    auto result = readAddressRange<MemorySpaceWEOM::CURRENT_PRESET_ID>();
+    auto result = readAddressRange(MemorySpaceWEOM::CURRENT_PRESET_ID);
     if (!result.has_value())
     {
         return etl::unexpected<Error>(result.error());
@@ -552,7 +554,7 @@ etl::expected<void, Error> WEOM::setPresetId(const PresetId& id)
 
 etl::expected<void, Error> WEOM::saveCurrentPresetIndexToFlash()
 {
-    auto readResult = readAddressRange<MemorySpaceWEOM::CURRENT_PRESET_INDEX>();
+    auto readResult = readAddressRange(MemorySpaceWEOM::CURRENT_PRESET_INDEX);
     if (!readResult.has_value())
     {
         return etl::unexpected<Error>(readResult.error());
@@ -589,13 +591,19 @@ etl::expected<void, Error> WEOM::writeData(const etl::span<uint8_t>& data, const
     return m_deviceInterface->writeData(data, firstAddress);
 }
 
-template <const AddressRange& addressRange>
-etl::expected<etl::array<uint8_t, addressRange.getSize()>, Error> WEOM::readAddressRange()
+etl::expected<etl::vector<uint8_t, 32>, Error> WEOM::readAddressRange(const AddressRange& addressRange)
 {
+    assert(addressRange.getSize() <= 32);
     if (!m_deviceInterface)
     {
         return etl::unexpected<Error>(Error::PROTOCOL__NO_DATALINK);
     }
-    return m_deviceInterface->readAddressRange<addressRange>();
+    etl::vector<uint8_t, 32> data(addressRange.getSize());
+    auto result = m_deviceInterface->readData(data, addressRange.getFirstAddress());
+    if (!result.has_value())
+    {
+        return etl::unexpected<Error>(result.error());
+    }
+    return data;
 }
 } // namespace wl

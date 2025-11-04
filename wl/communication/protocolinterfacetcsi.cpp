@@ -17,7 +17,7 @@ ProtocolInterfaceTCSI::ProtocolInterfaceTCSI(SleepFunction sleepFunction)
 
 void ProtocolInterfaceTCSI::setDataLinkInterface(etl::unique_ptr<IDataLinkInterface> dataLinkInterface)
 {
-    etl::lock_guard lock(m_mutex);
+    etl::lock_guard<etl::mutex> lock(m_mutex);
 
     m_dataLinkInterface = etl::move(dataLinkInterface);
 
@@ -73,23 +73,25 @@ etl::expected<void, Error> ProtocolInterfaceTCSI::writeData(const etl::span<cons
 
     if (!m_dataLinkInterface)
     {
-        return etl::unexpected<Error>(Error::PROTOCOL__NO_DATALINK);
+        return etl::unexpected<Error>{Error::PROTOCOL__NO_DATALINK};
     }
 
-    etl::lock_guard lock(m_mutex);
+    etl::lock_guard<etl::mutex> lock(m_mutex);
 
     if (MemorySpaceWEOM::FLASH_MEMORY.contains(address))
     {
         auto burstStartRequest = TCSIPacket::createBurstStartRequest(++m_lastPacketId, address);
-        if (auto result =  writeDataImpl(burstStartRequest, address, timeout); !result.has_value())
+        auto result =  writeDataImpl(burstStartRequest, address, timeout);
+        if (!result.has_value())
         {
-            return etl::unexpected<Error>(result.error());
+            return etl::unexpected<Error>{result.error()};
         }
 
         auto writeRequest = TCSIPacket::createWriteRequest(++m_lastPacketId, address, data);
-        if (auto result =  writeDataImpl(writeRequest, address, timeout); !result.has_value())
+        result =  writeDataImpl(writeRequest, address, timeout);
+        if (!result.has_value())
         {
-            return etl::unexpected<Error>(result.error());
+            return etl::unexpected<Error>{result.error()};
         }
         auto burstEndRequest = TCSIPacket::createBurstEndRequest(++m_lastPacketId, address);
         return writeDataImpl(burstEndRequest, address, timeout);
@@ -106,7 +108,7 @@ bool ProtocolInterfaceTCSI::isConnectionLost() const
 
 etl::expected<TCSIPacket, Error> ProtocolInterfaceTCSI::readDataImpl(uint32_t dataSize, uint32_t address, const std::chrono::steady_clock::duration& timeout)
 {
-    etl::lock_guard lock(m_mutex);
+    etl::lock_guard<etl::mutex> lock(m_mutex);
 
     auto readRequest = TCSIPacket::createReadRequest(++m_lastPacketId, address, dataSize);
     m_lastPacketId = readRequest.getPacketId();
@@ -208,7 +210,8 @@ etl::expected<TCSIPacket, Error> ProtocolInterfaceTCSI::receiveResponsePacket(co
         const auto packetSize = receivedData.size();
         receivedData.resize(packetSize + expectedDataSize.value(), 0);
 
-        if (const auto readRestOfResponseResult = m_dataLinkInterface->read(etl::span<uint8_t>(receivedData).subspan(packetSize, expectedDataSize.value()), timer.getRestOfTimeout()); !readRestOfResponseResult.has_value())
+        const auto readRestOfResponseResult = m_dataLinkInterface->read(etl::span<uint8_t>(receivedData).subspan(packetSize, expectedDataSize.value()), timer.getRestOfTimeout());
+        if (!readRestOfResponseResult.has_value())
         {
             dropPendingData(timer.getRestOfTimeout());
             return etl::unexpected<Error>(readRestOfResponseResult.error());

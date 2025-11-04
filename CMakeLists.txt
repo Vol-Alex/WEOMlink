@@ -76,7 +76,7 @@ endif()
 
 target_include_directories(weomlink PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
-target_compile_features(weomlink PUBLIC cxx_std_20)
+target_compile_features(weomlink PUBLIC cxx_std_17)
 
 target_link_libraries(weomlink PUBLIC etl::etl) 
 

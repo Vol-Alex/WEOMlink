@@ -3,6 +3,7 @@
 #include <algorithm>
 
 namespace wl {
+constexpr uint16_t ContrastBrightness::UINT14_MAX_VALUE;
 
 ContrastBrightness::ContrastBrightness(uint16_t contrastRaw, uint16_t brightnessRaw)
     : m_contrast(std::min(contrastRaw, UINT14_MAX_VALUE))

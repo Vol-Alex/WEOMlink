@@ -5,8 +5,6 @@
 
 #include <cstdint>
 #include <cassert>
-#include <compare>
-
 
 namespace wl {
 
@@ -82,13 +80,6 @@ public:
      * @return A new AddressRange shifted by the given offset.
      */
     constexpr AddressRange moved(uint32_t offset) const;
-
-    /**
-     * @brief Compares two AddressRange objects for ordering.
-     * @param other The AddressRange to compare with.
-     * @return A std::strong_ordering value indicating the comparison result.
-     */
-    std::strong_ordering operator<=>(const AddressRange& other) const = default;
 
 private:
     uint32_t m_firstAddress;

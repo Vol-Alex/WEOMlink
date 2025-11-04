@@ -4,6 +4,10 @@
 
 namespace wl {
 
+constexpr DeviceInterfaceWEOM::Duration DeviceInterfaceWEOM::TIMEOUT_DEFAULT;
+
+constexpr DeviceInterfaceWEOM::Duration DeviceInterfaceWEOM::BUSY_DEVICE_DELAY;
+constexpr DeviceInterfaceWEOM::Duration DeviceInterfaceWEOM::BUSY_DEVICE_TIMEOUT;
 
 DeviceInterfaceWEOM::DeviceInterfaceWEOM(etl::unique_ptr<ProtocolInterfaceTCSI> protocolInterface, SleepFunction sleepFunction) :
     BaseClass(BaseClass::DeviceEndianity::LITTLE),

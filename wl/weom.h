@@ -373,8 +373,7 @@ private:
     uint8_t m_lastPacketId;
     SleepFunction m_sleepFunction;
 
-    template <const AddressRange& addressRange>
-    etl::expected<etl::array<uint8_t, addressRange.getSize()>, Error> readAddressRange();
+    etl::expected<etl::vector<uint8_t, 32>, Error> readAddressRange(const AddressRange& addressRange);
 
     etl::expected<void, Error> writeData(const etl::span<uint8_t>& data, const AddressRange& addressRange, MemoryType memoryType = MemoryType::RAM);
 };

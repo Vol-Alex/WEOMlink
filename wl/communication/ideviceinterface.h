@@ -55,14 +55,6 @@ public:
     [[nodiscard]] virtual etl::expected<void, Error> writeData(etl::span<const uint8_t> data, uint32_t address) = 0;
 
     /**
-     * @brief Reads data from a specified address range on the device.
-     * @tparam addressRange The address range to read from, specified as a template parameter.
-     * @return An `etl::expected<void, Error>` indicating success or error.
-     */
-    template <const AddressRange& addressRange>
-    etl::expected<etl::array<uint8_t, addressRange.getSize()>, Error> readAddressRange();
-
-    /**
      * @brief Converts a value from the device's endianness to the host's endianness.
      * @tparam T The type of the value to convert.
      * @param value The value in device endianness.
@@ -85,19 +77,6 @@ private:
 };
 
 // Impl
-
-template <const AddressRange& addressRange>
-etl::expected<etl::array<uint8_t, addressRange.getSize()>, Error> IDeviceInterface::readAddressRange()
-{
-    etl::array<uint8_t, addressRange.getSize()> data = {};
-    auto result = readData(data, addressRange.getFirstAddress());
-    if (!result.has_value())
-    {
-        return etl::unexpected(result.error());
-    }
-    return data;
-}
-
 template<class T>
 T IDeviceInterface::fromDeviceEndianity(const T& value) const
 {

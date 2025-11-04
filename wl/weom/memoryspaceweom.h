@@ -35,11 +35,6 @@ struct MemoryDescriptorWEOM
     uint32_t maximumDataSize {0}; /**< Maximum data size for operations in this memory segment. */
 
     /**
-     * @brief Default strong ordering operator for memory descriptors.
-     */
-    std::strong_ordering operator<=>(const MemoryDescriptorWEOM& other) const = default;
-
-    /**
      * @brief Constructs a memory descriptor with a specified address range and type.
      * @param addressRange The address range for the memory segment.
      * @param type The type of memory.
